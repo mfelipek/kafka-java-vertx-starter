@@ -54,9 +54,13 @@ public class Main {
         });
 
         // Create CompositeFuture to wait for verticles to start
-        CompositeFuture.join(websocketVerticleFuture, producerVerticleFuture, consumerVerticleFuture)
-                .onSuccess(res -> System.out.printf("Application has started, go to localhost:8080 to see the app running.\n"))
-                .onFailure(t -> System.out.printf("Application failed to start: %s%n", t));
+        CompositeFuture.all(websocketVerticleFuture, producerVerticleFuture, consumerVerticleFuture).setHandler(ar -> {
+            if (ar.succeeded()) {
+                System.out.print("Application has started, go to localhost:8080 to see the app running.\n");
+            } else {
+                System.out.printf("Application failed to start: %s%n", ar.cause());
+            }
+        });
 
     }
 
